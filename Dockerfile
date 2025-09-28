@@ -1,10 +1,11 @@
-# Use the official PHP-Apache base image
+# Use the official PHP 8.2 with Apache base image
 FROM php:8.2-apache
 
-# --- THIS IS THE FIX ---
-# Install the mysqli PHP extension, which is required to connect to MySQL/PostgreSQL databases.
-RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
-# --- END OF FIX ---
+# Install system dependencies required for PHP extensions
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
+    && docker-php-ext-install -j$(nproc) pgsql pdo_pgsql mysqli
 
 # Set the working directory for the Apache server
 WORKDIR /var/www/html
